@@ -1,0 +1,9 @@
+services:
+  meshing-around:
+    stdin_open: true
+    tty: true
+    devices:
+      - /dev/ttyUSB0
+    volumes:
+      - /storage/location/config.ini:/app/config.ini:ro
+    image: ghcr.io/pcs3rd/meshing-around:main
