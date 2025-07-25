@@ -1,0 +1,13 @@
+= Installation via script
+
+Clone the Repository
+
+If you dont have git you will need it sudo apt-get install git
+
+git clone https://github.com/spudgunman/meshing-around
+The code is under active development, so make sure to pull the latest changes regularly!
+
+Quick setup
+
+Automated Installation: install.sh will automate optional venv and requirements installation.
+Launch Script: launch.sh only used in a venv install, to launch the bot and the report generator.
