@@ -70,12 +70,12 @@ else:
 if enableCmdHistory:
     trap_list = trap_list + ("history",)
     #help_message = help_message + ", history"
-
+    
 # Location Configuration
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
-    help_message = help_message + ", whereami, wx, wxc, rlist"
+    trap_list = trap_list + trap_list_location + ("tide",)
+    help_message = help_message + ", whereami, wx, tide"
     if enableGBalerts and not enableDEalerts:
         from modules.globalalert import * # from the spudgunman/meshing-around repo
         logger.warning(f"System: GB Alerts not functional at this time need to find a source API")
@@ -87,17 +87,25 @@ if location_enabled:
     
     # Open-Meteo Configuration for worldwide weather
     if use_meteo_wxApi:
+        trap_list = trap_list + ("wxc",)
+        help_message = help_message + ", wxc"
         from modules.wx_meteo import * # from the spudgunman/meshing-around repo
     else:
         # NOAA only features
-        help_message = help_message + ", wxa, tide"
+        help_message = help_message + ", wxa"
 
 # NOAA alerts needs location module
 if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     # limited subset, this should be done better but eh..
-    trap_list = trap_list + ("wx", "wxc", "wxa", "wxalert", "ea", "ealert", "valert")
+    trap_list = trap_list + ("wx", "wxa", "wxalert", "ea", "ealert", "valert")
     help_message = help_message + ", wxalert, ealert, valert"
+
+# NOAA Coastal Waters Forecasts PZZ
+if pzzEnabled:
+    from modules.locationdata import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("mwx",)
+    help_message = help_message + ", mwx"
         
 # BBS Configuration
 if bbs_enabled:
@@ -962,7 +970,8 @@ def consumeMetadata(packet, rxNode=0):
                 # if altitude is over 2000 send a log and message for high-flying nodes and not in highfly_ignoreList
                 if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
                     logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
-                    send_message(f"High Altitude {position_data['altitude']}m on Device:{rxNode} Node:{get_name_from_number(nodeID,'short',rxNode)}", highfly_channel, 0, rxNode)
+                    altFeet = round(position_data['altitude'] * 3.28084, 2)
+                    send_message(f"High Altitude {altFeet}ft ({position_data['altitude']}m) on Device:{rxNode} Node:{get_name_from_number(nodeID,'short',rxNode)}", highfly_channel, 0, rxNode)
                     time.sleep(responseDelay)
         
                 # Keep the positionMetadata dictionary at a maximum size of 20
